@@ -12,17 +12,21 @@ function updateView() {
   const height = window.innerHeight
   view.width = width / zoom
   view.height = height / zoom
-  view.x = focusPoint.x - .5 * view.width
-  view.y = focusPoint.y - .5 * view.height
-  svg.setAttributeNS(null, 'viewBox', [view.x, view.y, view.width, view.height].join(' '))
+  view.x = focusPoint.x - 0.5 * view.width
+  view.y = focusPoint.y - 0.5 * view.height
+  svg.setAttributeNS(
+    null,
+    'viewBox',
+    [view.x, view.y, view.width, view.height].join(' ')
+  )
 }
 
 updateView()
 
 /**
- * 
- * @param {keyof SVGElementTagNameMap} type 
- * @param {Record<string, any>} props 
+ *
+ * @param {keyof SVGElementTagNameMap} type
+ * @param {Record<string, any>} props
  * @returns {SVGElement}
  */
 function create(type, props) {
@@ -39,13 +43,9 @@ function create(type, props) {
  *   opacity?: number
  *   skip?: (current: { value: number, type: 'x' | 'y' }) => boolean
  * }} Parameter
- * @param {Parameter} param0 
+ * @param {Parameter} param0
  */
-function grid({
-  step = 1,
-  opacity = .33,
-  skip,
-} = {}) {
+function grid({ step = 1, opacity = 0.33, skip } = {}) {
   const xmin = ceil(view.left, step)
   const xmax = floor(view.right, step)
   for (let x = xmin; x <= xmax; x += step) {
@@ -87,11 +87,7 @@ function grid({
  * }} Arg
  * @param {Arg} param0
  */
-function plot({
-  fn,
-  thickness,
-  color,
-}) {
+function plot({ fn, thickness, color }) {
   const step = window.innerWidth
   const points = []
   for (let i = 0; i < step; i++) {
@@ -100,26 +96,29 @@ function plot({
     const y = fn(x)
     points.push([x, -y].join(','))
   }
-  const polyline = document.createElementNS('http://www.w3.org/2000/svg', 'polyline')
+  const polyline = document.createElementNS(
+    'http://www.w3.org/2000/svg',
+    'polyline'
+  )
   polyline.setAttributeNS(null, 'points', points.join(' '))
   if (color) {
     polyline.setAttributeNS(null, 'stroke', color)
   }
   if (thickness !== undefined) {
-    polyline.setAttributeNS(null, 'stroke-width', (.01 * thickness).toString())
+    polyline.setAttributeNS(null, 'stroke-width', (0.01 * thickness).toString())
   }
   svg.querySelector('g').append(polyline)
 }
 
 grid({
   skip: info => info.value % 5 === 0,
-  opacity: .2,
+  opacity: 0.2,
 })
 
 grid({
   step: 5,
   skip: info => info.value === 0,
-  opacity: .5,
+  opacity: 0.5,
 })
 
 grid({
@@ -129,20 +128,15 @@ grid({
 
 plot({ fn: x => x })
 
-plot((() => {
-  const d1 = 2
-  const d2 = 3
-  const d = d1 + d2
-  const fn = x => {
+plot({
+  color: 'red',
+  thickness: 4,
+  fn: x => {
+    const d1 = 2
+    const d2 = 3
+    const d = d1 + d2
     x = positiveModulo(x, d * 2)
-    x = x < d
-      ? Math.min(1, x / d1)
-      : Math.max(0, 1 - (x - d) / d1)
+    x = x < d ? Math.min(1, x / d1) : Math.max(0, 1 - (x - d) / d1)
     return easeInOut3(x)
-  }
-  return {
-    color: 'red',
-    thickness: 4,
-    fn,
-  }
-})())
+  },
+})
