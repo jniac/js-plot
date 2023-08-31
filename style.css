@@ -1,0 +1,9 @@
+body, body * {
+  box-sizing: border-box;
+  margin: 0;
+  appearance: none;
+}
+
+body {
+  height: 100vh;
+}
